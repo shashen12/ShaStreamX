@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShaStreamX — Stream. Talk. Download.</title>
+<style>
+/* ============================================================
+   ShaStreamX — Modern Dark Mode UI
+   Theme: deep charcoal + electric blue / neon purple gradients
+   ============================================================ */
+:root {
+  --bg:          #0f0f12;
+  --bg-card:     #17171c;
+  --bg-card-2:   #1e1e26;
+  --border:      #26262f;
+  --text:        #e8e8ef;
+  --text-dim:    #9a9aa8;
+  --blue:        #00f2fe;
+  --purple:      #4facfe;
+  --gradient:    linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  --shadow:      0 6px 24px rgba(0, 0, 0, .45);
+  --radius:      14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* ---------- HEADER BAR ---------- */
+header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px;
+  background: rgba(15, 15, 18, .92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-size: 1.45rem; font-weight: 800; letter-spacing: .5px;
+  background: var(--gradient);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 22px rgba(0, 242, 254, .35);
+  cursor: pointer; white-space: nowrap;
+}
+.search-wrap {
+  flex: 1; max-width: 560px; display: flex; margin: 0 auto;
+}
+.search-wrap input {
+  flex: 1; padding: 10px 16px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 999px 0 0 999px; color: var(--text); outline: none;
+  transition: border-color .25s;
+}
+.search-wrap input:focus { border-color: var(--purple); }
+.search-wrap select {
+  background: var(--bg-card-2); color: var(--text-dim);
+  border: 1px solid var(--border); border-left: none;
+  padding: 0 10px; outline: none; cursor: pointer;
+}
+.search-wrap button {
+  padding: 0 20px; border: none; cursor: pointer;
+  background: var(--gradient); color: #0f0f12; font-weight: 700;
+  border-radius: 0 999px 999px 0;
+}
+nav { display: flex; gap: 6px; }
+nav button {
+  background: none; border: none; color: var(--text-dim);
+  padding: 9px 14px; border-radius: 10px; cursor: pointer;
+  font-size: .95rem; font-weight: 600;
+  transition: all .25s;
+}
+nav button:hover { color: var(--text); background: var(--bg-card-2); }
+nav button.active {
+  background: var(--gradient); color: #0f0f12;
+  box-shadow: 0 0 18px rgba(79, 172, 254, .45);
+}
+
+/* ---------- AD SLOTS ---------- */
+.ad-slot {
+  max-width: 900px; margin: 18px auto; padding: 12px;
+  border: 1px dashed #3a3a46; border-radius: var(--radius);
+  background: var(--bg-card);
+  text-align: center; color: var(--text-dim); font-size: .75rem;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.ad-slot .ad-content {
+  margin-top: 8px; min-height: 60px; display: flex;
+  align-items: center; justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0,242,254,.08), rgba(79,172,254,.08));
+  color: var(--text); font-size: .95rem; letter-spacing: normal;
+  text-transform: none;
+}
+.sponsored-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 26px; border-radius: 999px;
+  background: linear-gradient(135deg, #ff8a00, #ff3d77);
+  color: #fff; font-weight: 700; text-decoration: none;
+  box-shadow: 0 0 24px rgba(255, 61, 119, .45);
+  transition: transform .2s, box-shadow .2s;
+}
+.sponsored-btn:hover { transform: translateY(-2px); box-shadow: 0 0 34px rgba(255, 61, 119, .65); }
+.sponsored-badge { font-size: .65rem; background: rgba(255,255,255,.22); padding: 3px 8px; border-radius: 999px; }
+
+/* ---------- PAGES ---------- */
+.page { display: none; animation: fadeIn .35s ease; padding-bottom: 60px; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+/* ---------- HOME: HERO CAROUSEL ---------- */
+.hero {
+  position: relative; border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); aspect-ratio: 21/9; min-height: 260px;
+}
+.hero-slide {
+  position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease;
+  display: flex; align-items: flex-end; padding: 32px;
+}
+.hero-slide.current { opacity: 1; }
+.hero-slide .meta { position: relative; z-index: 2; }
+.hero-slide h2 { font-size: clamp(1.3rem, 3vw, 2.2rem); margin-bottom: 8px; }
+.hero-slide p { color: var(--text-dim); margin-bottom: 14px; }
+.btn-primary {
+  background: var(--gradient); color: #0f0f12; border: none;
+  padding: 11px 26px; border-radius: 999px; font-weight: 700;
+  cursor: pointer; transition: transform .2s, box-shadow .2s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 22px rgba(0, 242, 254, .5); }
+.hero-dots { position: absolute; bottom: 14px; right: 22px; display: flex; gap: 8px; z-index: 3; }
+.hero-dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,.3); cursor: pointer; transition: all .25s;
+}
+.hero-dots span.on { background: var(--blue); box-shadow: 0 0 10px var(--blue); }
+
+/* ---------- HOME: VIDEO GRID ---------- */
+.section-title { margin: 30px 0 16px; font-size: 1.2rem; }
+.grid {
+  display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+.card {
+  background: var(--bg-card); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer; border: 1px solid transparent;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+}
+.card:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: var(--purple); }
+.thumb {
+  aspect-ratio: 16/9; position: relative; display: flex;
+  align-items: center; justify-content: center; font-size: 2.4rem;
+}
+.thumb .dur {
+  position: absolute; bottom: 8px; right: 8px;
+  background: rgba(0,0,0,.75); padding: 2px 8px;
+  border-radius: 6px; font-size: .75rem;
+}
+.thumb .play {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(0,0,0,.55); display: flex; align-items: center;
+  justify-content: center; font-size: 1.2rem; color: #fff;
+  opacity: 0; transition: opacity .25s;
+}
+.card:hover .play { opacity: 1; }
+.card-body { padding: 12px 14px 16px; }
+.card-body h3 { font-size: .98rem; margin-bottom: 6px; line-height: 1.35; }
+.card-body .sub { color: var(--text-dim); font-size: .82rem; }
+
+/* ---------- SHORTS ---------- */
+.shorts-feed {
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+}
+.short {
+  position: relative; width: min(420px, 92vw);
+  aspect-ratio: 9/16; border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.short .overlay {
+  position: absolute; right: 12px; bottom: 90px;
+  display: flex; flex-direction: column; gap: 16px; z-index: 3;
+}
+.overlay button {
+  background: rgba(0,0,0,.5); border: none; color: #fff;
+  width: 48px; height: 48px; border-radius: 50%; font-size: 1.2rem;
+  cursor: pointer; transition: all .2s; backdrop-filter: blur(6px);
+}
+.overlay button:hover { background: var(--purple); transform: scale(1.1); }
+.short .info {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,.8));
+}
+.short .info h4 { margin-bottom: 4px; }
+.short .info p { color: var(--text-dim); font-size: .85rem; }
+
+/* ---------- TALK / CHAT ---------- */
+.chat-shell {
+  display: grid; grid-template-columns: 280px 1fr; gap: 0;
+  background: var(--bg-card); border-radius: var(--radius);
+  overflow: hidden; border: 1px solid var(--border); height: 62vh; min-height: 440px;
+}
+.rooms { border-right: 1px solid var(--border); overflow-y: auto; }
+.rooms h3 { padding: 16px; font-size: .8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+.room {
+  padding: 12px 16px; cursor: pointer; display: flex; gap: 10px;
+  align-items: center; transition: background .2s;
+}
+.room:hover { background: var(--bg-card-2); }
+.room.active { background: var(--bg-card-2); border-left: 3px solid var(--blue); }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #0f0f12; background: var(--gradient);
+}
+.room .rname { font-weight: 600; font-size: .92rem; }
+.room .rpreview { color: var(--text-dim); font-size: .78rem; }
+.chat-main { display: flex; flex-direction: column; }
+.chat-head {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  font-weight: 700; display: flex; align-items: center; gap: 10px;
+}
+.chat-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 70%; padding: 10px 14px; border-radius: 14px; font-size: .92rem; line-height: 1.4; }
+.msg.me { align-self: flex-end; background: var(--gradient); color: #0f0f12; border-bottom-right-radius: 4px; }
+.msg.them { align-self: flex-start; background: var(--bg-card-2); border-bottom-left-radius: 4px; }
+.msg .who { font-size: .72rem; font-weight: 700; margin-bottom: 4px; color: var(--blue); }
+.msg.me .who { color: #083344; }
+.chat-input {
+  display: flex; gap: 10px; padding: 14px; border-top: 1px solid var(--border);
+}
+.chat-input input {
+  flex: 1; background: var(--bg-card-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 11px 18px; color: var(--text); outline: none;
+}
+.chat-input button {
+  border: none; background: var(--gradient); color: #0f0f12;
+  width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+}
+
+/* ---------- DOWNLOADER ---------- */
+.dl-card {
+  max-width: 640px; margin: 0 auto; background: var(--bg-card);
+  border-radius: var(--radius); padding: 32px;
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+  text-align: center;
+}
+.dl-card h2 { margin-bottom: 6px; }
+.dl-card p.sub { color: var(--text-dim); margin-bottom: 22px; font-size: .9rem; }
+.dl-input { display: flex; gap: 0; margin-bottom: 14px; }
+.dl-input input {
+  flex: 1; padding: 13px 18px; background: var(--bg-card-2);
+  border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text); outline: none; width: 100%;
+}
+.dl-input input:focus { border-color: var(--blue); }
+.quality-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.quality {
+  padding: 9px 20px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-card-2);
+  color: var(--text-dim); font-weight: 600; transition: all .2s;
+}
+.quality.sel { background: var(--gradient); color: #0f0f12; border-color: transparent; box-shadow: 0 0 16px rgba(79,172,254,.4); }
+.progress { height: 10px; background: var(--bg-card-2); border-radius: 999px; overflow: hidden; margin: 18px 0 8px; display: none; }
+.progress .bar {
+  height: 100%; width: 0%; background: var(--gradient);
+  border-radius: 999px; transition: width .15s linear;
+  box-shadow: 0 0 14px rgba(0,242,254,.6);
+}
+.dl-status { font-size: .85rem; color: var(--text-dim); min-height: 20px; }
+.dl-done { color: var(--blue); font-weight: 700; }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 860px) {
+  header { flex-wrap: wrap; }
+  .search-wrap { order: 3; max-width: 100%; flex-basis: 100%; }
+  nav { width: 100%; justify-content: space-between; order: 4; }
+  nav button { flex: 1; padding: 9px 6px; font-size: .82rem; }
+  .chat-shell { grid-template-columns: 1fr; height: 70vh; }
+  .rooms { display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  .rooms h3 { display: none; }
+  .room { white-space: nowrap; }
+  .hero { aspect-ratio: 16/10; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="logo" onclick="showPage('home')">⚡ ShaStreamX</div>
+
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Search videos, shorts, creators…" />
+    <select id="searchFilter">
+      <option value="videos">Videos</option>
+      <option value="shorts">Shorts</option>
+      <option value="users">Users</option>
+    </select>
+    <button onclick="doSearch()">🔍</button>
+  </div>
+
+  <nav>
+    <button class="active" data-page="home" onclick="showPage('home')">🏠 Home</button>
+    <button data-page="shorts" onclick="showPage('shorts')">📱 Shorts</button>
+    <button data-page="talk" onclick="showPage('talk')">💬 Talk</button>
+    <button data-page="downloader" onclick="showPage('downloader')">⬇ Downloader</button>
+    <button data-page="profile" onclick="showPage('profile')">👤 Profile</button>
+  </nav>
+</header>
+
+<!-- ============ AD SLOT #1 (top global banner) ============ -->
+<div class="ad-slot" id="ad-top-global">
+  <span>Advertisement</span>
+  <div class="ad-content">
+    <!-- ▼▼▼ PASTE YOUR CPM / BANNER AD SCRIPT OR <a> LINK HERE ▼▼▼ -->
+    <a class="sponsored-btn" href="https://www.profitableratecpmnetwork.com/b1s6xztb?key=6e939e27c22f975aa89966193ea548b4" target="_blank" rel="noopener">
+      <span class="sponsored-badge">SPONSORED</span> ✨ Promoted Content — Click Here
+    </a>
+    <!-- ▲▲▲ END AD SLOT #1 ▲▲▲ -->
+  </div>
+</div>
+
+<!-- ================= PAGE 1: HOME ================= -->
+<main class="page active" id="page-home">
+  <div class="wrap">
+    <div class="hero" id="hero"></div>
+    <h2 class="section-title">🔥 Recommended For You</h2>
+    <div class="grid" id="videoGrid"></div>
+  </div>
+</main>
+
+<!-- ================= PAGE 2: SHORTS ================= -->
+<main class="page" id="page-shorts">
+  <div class="wrap">
+    <h2 class="section-title">📱 Shorts</h2>
+    <div class="shorts-feed" id="shortsFeed"></div>
+  </div>
+</main>
+
+<!-- ================= PAGE 3: TALK / CHAT ================= -->
+<main class="page" id="page-talk">
+  <div class="wrap">
+    <h2 class="section-title">💬 Talk — Community Chat</h2>
+    <div class="chat-shell">
+      <aside class="rooms" id="roomList"><h3>Chat Rooms</h3></aside>
+      <section class="chat-main">
+        <div class="chat-head" id="chatHead">💬 #general</div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-input">
+          <input type="text" id="chatMsg" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()" />
+          <button onclick="sendMsg()">➤</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ================= PAGE 4: DOWNLOADER ================= -->
+<main class="page" id="page-downloader">
+  <div class="wrap">
+    <h2 class="section-title">⬇ Media Downloader</h2>
+
+    <!-- ============ AD SLOT #2 (above download action) ============ -->
+    <div class="ad-slot">
+      <span>Advertisement</span>
+      <div class="ad-content">
+        <!-- ▼▼▼ CPM BANNER / DIRECT LINK — above download button ▼▼▼ -->
+        <a class="sponsored-btn" href="https://www.profitableratecpmnetwork.com/b1s6xztb?key=6e939e27c22f975aa89966193ea548b4" target="_blank" rel="noopener">
+          <span class="sponsored-badge">SPONSORED</span> 🔥 Trending Offer — Watch Now
+        </a>
+        <!-- ▲▲▲ END AD SLOT #2 ▲▲▲ -->
+      </div>
+    </div>
+
+    <div class="dl-card">
+      <h2>Paste a video link</h2>
+      <p class="sub">Supports YouTube, TikTok, Instagram &amp; more</p>
+      <div class="dl-input">
+        <input type="url" id="dlUrl" placeholder="https://…" />
+      </div>
+      <div class="quality-row" id="qualityRow">
+        <button class="quality sel" data-q="1080p">🎬 1080p MP4</button>
+        <button class="quality" data-q="720p">🎬 720p MP4</button>
+        <button class="quality" data-q="mp3">🎵 MP3 Audio</button>
+      </div>
+      <button class="btn-primary" style="width:100%; padding:14px; font-size:1rem;" onclick="startDownload()">⬇ Download</button>
+      <div class="progress" id="dlProgress"><div class="bar" id="dlBar"></div></div>
+      <div class="dl-status" id="dlStatus"></div>
+    </div>
+
+    <!-- ============ AD SLOT #3 (below download action) ============ -->
+    <div class="ad-slot">
+      <span>Advertisement</span>
+      <div class="ad-content">
+        <!-- ▼▼▼ CPM BANNER / DIRECT LINK — below download button ▼▼▼ -->
+        <a class="sponsored-btn" href="https://www.profitableratecpmnetwork.com/b1s6xztb?key=6e939e27c22f975aa89966193ea548b4" target="_blank" rel="noopener">
+          <span class="sponsored-badge">SPONSORED</span> 💎 Exclusive Deal — Claim Now
+        </a>
+        <!-- ▲▲▲ END AD SLOT #3 ▲▲▲ -->
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ================= PAGE 5: PROFILE ================= -->
+<main class="page" id="page-profile">
+  <div class="wrap">
+    <div class="dl-card" style="max-width:520px;">
+      <div class="avatar" style="width:88px;height:88px;margin:0 auto 16px;font-size:2rem;">S</div>
+      <h2>StreamFan_88</h2>
+      <p class="sub">1.2K followers · 48 videos · Member since 2024</p>
+      <button class="btn-primary">✏️ Edit Profile</button>
+    </div>
+  </div>
+</main>
+
+<!-- ============ AD SLOT #4 (bottom global banner) ============ -->
+<div class="ad-slot">
+  <span>Advertisement</span>
+  <div class="ad-content">
+    <!-- ▼▼▼ PASTE YOUR CPM / BANNER AD SCRIPT HERE ▼▼▼ -->
+    <a class="sponsored-btn" href="https://www.profitableratecpmnetwork.com/b1s6xztb?key=6e939e27c22f975aa89966193ea548b4" target="_blank" rel="noopener">
+      <span class="sponsored-badge">SPONSORED</span> 🚀 Boost Your Reach — Learn More
+    </a>
+    <!-- ▲▲▲ END AD SLOT #4 ▲▲▲ -->
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   VIDEO CLICK MONETIZATION HOOK
+   Swap MONETIZATION_URL with your popunder/direct CPM link.
+   ================================================================ */
+const MONETIZATION_URL = "https://www.profitableratecpmnetwork.com/b1s6xztb?key=6e939e27c22f975aa89966193ea548b4";
+function fireMonetizedClick() {
+  window.open(MONETIZATION_URL, "_blank", "noopener");
+}
+
+/* ---------------- PAGE ROUTER ---------------- */
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b =>
+    b.classList.toggle("active", b.dataset.page === name));
+  window.scrollTo({ top: 0 });
+  if (name === "shorts") loadShorts();
+}
+
+/* ---------------- SEARCH ---------------- */
+function doSearch() {
+  const q = document.getElementById("searchInput").value.trim();
+  if (!q) return;
+  showPage("home");
+  const grid = document.getElementById("videoGrid");
+  grid.innerHTML = "";
+  const res = VIDEO_DATA.filter(v => v.title.toLowerCase().includes(q.toLowerCase()) || v.channel.toLowerCase().includes(q.toLowerCase()));
+  (res.length ? res : VIDEO_DATA).forEach(v => grid.appendChild(makeCard(v)));
+}
+
+/* ---------------- HOME: HERO CAROUSEL ---------------- */
+const HERO_DATA = [
+  { title: "Neon Skies — Official Premiere", sub: "ShaStudios · 2.4M views", grad: "linear-gradient(135deg,#00f2fe33,#4facfe66), radial-gradient(circle at 70% 30%, #4facfe, #0f0f12)" },
+  { title: "The Future of Streaming", sub: "TechTalk Daily · 890K views", grad: "linear-gradient(135deg,#4facfe33,#a855f766), radial-gradient(circle at 30% 60%, #a855f7, #0f0f12)" },
+  { title: "Midnight City Drive 4K", sub: "Cinematic Crew · 1.1M views", grad: "linear-gradient(135deg,#00f2fe33,#06b6d466), radial-gradient(circle at 50% 80%, #06b6d4, #0f0f12)" },
+];
+const heroEl = document.getElementById("hero");
+HERO_DATA.forEach((h, i) => {
+  const s = document.createElement("div");
+  s.className = "hero-slide" + (i === 0 ? " current" : "");
+  s.style.background = h.grad;
+  s.innerHTML = `<div class="meta"><h2>${h.title}</h2><p>${h.sub}</p>
+    <button class="btn-primary" onclick="fireMonetizedClick()">▶ Watch Now</button></div>`;
+  heroEl.appendChild(s);
+});
+const dots = document.createElement("div");
+dots.className = "hero-dots";
+HERO_DATA.forEach((_, i) => {
+  const d = document.createElement("span");
+  if (i === 0) d.classList.add("on");
+  d.onclick = () => setHero(i);
+  dots.appendChild(d);
+});
+heroEl.appendChild(dots);
+let heroIdx = 0;
+function setHero(i) {
+  heroIdx = i;
+  heroEl.querySelectorAll(".hero-slide").forEach((s, j) => s.classList.toggle("current", j === i));
+  dots.querySelectorAll("span").forEach((d, j) => d.classList.toggle("on", j === i));
+}
+setInterval(() => setHero((heroIdx + 1) % HERO_DATA.length), 5000);
+
+/* ---------------- HOME: VIDEO GRID ---------------- */
+const VIDEO_DATA = [
+  { title: "Building a PC in 10 Minutes ⚡", channel: "TechTonic", views: "1.4M views", dur: "10:24", grad: "linear-gradient(135deg,#00f2fe,#4facfe)" },
+  { title: "Top 10 Hidden Gems of 2026", channel: "ListVerse", views: "620K views", dur: "14:02", grad: "linear-gradient(135deg,#a855f7,#4facfe)" },
+  { title: "Lo-Fi Beats to Code To", channel: "ChillZone", views: "3.8M views", dur: "1:02:11", grad: "linear-gradient(135deg,#f472b6,#a855f7)" },
+  { title: "Epic Space Documentary 🚀", channel: "CosmosLab", views: "2.1M views", dur: "48:30", grad: "linear-gradient(135deg,#06b6d4,#00f2fe)" },
+  { title: "Street Food Tour: Night Market", channel: "TasteBuds", views: "980K views", dur: "18:45", grad: "linear-gradient(135deg,#fb923c,#f43f5e)" },
+  { title: "React Tips You NEED to Know", channel: "DevFlow", views: "410K views", dur: "12:09", grad: "linear-gradient(135deg,#4facfe,#00f2fe)" },
+  { title: "Epic Fail Compilation 😂", channel: "LaughFactory", views: "5.6M views", dur: "08:33", grad: "linear-gradient(135deg,#facc15,#fb923c)" },
+  { title: "Guitar Solo — Live Session", channel: "MelodyMaker", views: "340K views", dur: "06:58", grad: "linear-gradient(135deg,#34d399,#06b6d4)" },
+];
+function makeCard(v) {
+  const c = document.createElement("div");
+  c.className = "card";
+  c.innerHTML = `<div class="thumb" style="background:${v.grad}">
+      <div class="play">▶</div><span class="dur">${v.dur}</span></div>
+    <div class="card-body"><h3>${v.title}</h3>
+      <div class="sub">${v.channel} · ${v.views}</div></div>`;
+  c.querySelector(".thumb").onclick = () => fireMonetizedClick();
+  return c;
+}
+VIDEO_DATA.forEach(v => document.getElementById("videoGrid").appendChild(makeCard(v)));
+
+/* ---------------- SHORTS FEED ---------------- */
+const SHORTS = [
+  { t: "POV: your code works first try 😎", c: "@devflow", g: "linear-gradient(160deg,#00f2fe44,#0f0f12), linear-gradient(20deg,#4facfe,#a855f7)" },
+  { t: "30s recipe hack 🍜", c: "@tastebuds", g: "linear-gradient(160deg,#fb923c44,#0f0f12), linear-gradient(20deg,#f43f5e,#fb923c)" },
+  { t: "Sunset hyperlapse 🌅", c: "@cinematic", g: "linear-gradient(160deg,#f472b644,#0f0f12), linear-gradient(20deg,#a855f7,#f472b6)" },
+  { t: "Cat vs cucumber 🐱", c: "@laughfactory", g: "linear-gradient(160deg,#34d39944,#0f0f12), linear-gradient(20deg,#06b6d4,#34d399)" },
+];
+let shortsLoaded = false;
+function loadShorts() {
+  if (shortsLoaded) return;
+  shortsLoaded = true;
+  const feed = document.getElementById("shortsFeed");
+  SHORTS.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "short";
+    el.style.background = s.g;
+    el.innerHTML = `
+      <div class="info"><h4>${s.t}</h4><p>${s.c}</p></div>
+      <div class="overlay">
+        <button onclick="likeShort(this)">❤️</button>
+        <button onclick="fireMonetizedClick()">💬</button>
+        <button onclick="fireMonetizedClick()">↗️</button>
+      </div>`;
+    el.onclick = e => { if (!e.target.closest(".overlay")) fireMonetizedClick(); };
+    feed.appendChild(el);
+  });
+}
+function likeShort(btn) { btn.style.background = "#ff3d77"; btn.style.transform = "scale(1.2)"; setTimeout(() => btn.style.transform = "", 200); }
+
+/* ---------------- TALK / CHAT ---------------- */
+const ROOMS = [
+  { name: "#general", seed: [["Alex", "welcome to ShaStreamX! 🎉"], ["Mia", "this UI is clean ✨"]] },
+  { name: "#gaming",   seed: [["Zed", "anyone up for ranked? 🎮"]] },
+  { name: "#music",    seed: [["Nova", "dropping a new track tonight 🎵"]] },
+  { name: "#tech",     seed: [["Dev", "that new chip is insane 🤯"]] },
+];
+let currentRoom = 0;
+const roomList = document.getElementById("roomList");
+ROOMS.forEach((r, i) => {
+  const d = document.createElement("div");
+  d.className = "room" + (i === 0 ? " active" : "");
+  d.innerHTML = `<div class="avatar">${r.name[1].toUpperCase()}</div>
+    <div><div class="rname">${r.name}</div><div class="rpreview">${r.seed[r.seed.length-1][1]}</div></div>`;
+  d.onclick = () => switchRoom(i);
+  roomList.appendChild(d);
+});
+function switchRoom(i) {
+  currentRoom = i;
+  document.querySelectorAll(".room").forEach((r, j) => r.classList.toggle("active", j === i));
+  document.getElementById("chatHead").textContent = "💬 " + ROOMS[i].name;
+  renderRoom();
+}
+function renderRoom() {
+  const body = document.getElementById("chatBody");
+  body.innerHTML = "";
+  ROOMS[currentRoom].seed.forEach(([w, t]) => body.appendChild(makeMsg(w, t, w === "You")));
+}
+function makeMsg(who, text, me) {
+  const m = document.createElement("div");
+  m.className = "msg " + (me ? "me" : "them");
+  m.innerHTML = `<div class="who">${me ? "You" : who}</div>${text}`;
+  return m;
+}
+function sendMsg() {
+  const inp = document.getElementById("chatMsg");
+  const t = inp.value.trim();
+  if (!t) return;
+  const body = document.getElementById("chatBody");
+  body.appendChild(makeMsg("You", t, true));
+  inp.value = "";
+  body.scrollTop = body.scrollHeight;
+  setTimeout(() => {
+    const replies = ["nice!", "🔥🔥", "lol", "facts", "agreed ✅"];
+    body.appendChild(makeMsg("Alex", replies[Math.floor(Math.random() * replies.length)], false));
+    body.scrollTop = body.scrollHeight;
+  }, 900 + Math.random() * 900);
+}
+renderRoom();
+
+/* ---------------- DOWNLOADER ---------------- */
+document.querySelectorAll(".quality").forEach(q => {
+  q.onclick = () => {
+    document.querySelectorAll(".quality").forEach(x => x.classList.remove("sel"));
+    q.classList.add("sel");
+  };
+});
+function startDownload() {
+  const url = document.getElementById("dlUrl").value.trim();
+  const status = document.getElementById("dlStatus");
+  if (!url) { status.innerHTML = "⚠️ Please paste a valid link first."; return; }
+  fireMonetizedClick();
+  const q = document.querySelector(".quality.sel").dataset.q;
+  const prog = document.getElementById("dlProgress");
+  const bar = document.getElementById("dlBar");
+  prog.style.display = "block";
+  bar.style.width = "0%";
+  status.className = "dl-status";
+  status.textContent = "Fetching " + q + "…";
+  let p = 0;
+  const timer = setInterval(() => {
+    p += Math.random() * 9 + 3;
+    if (p >= 100) {
+      p = 100;
+      clearInterval(timer);
+      status.innerHTML = `<span class="dl-done">✅ Done! Your ${q} file is ready.</span>`;
+    } else {
+      status.textContent = `Downloading ${q}… ${Math.floor(p)}%`;
+    }
+    bar.style.width = p + "%";
+  }, 180);
+}
+</script>
+</body>
+</html>
